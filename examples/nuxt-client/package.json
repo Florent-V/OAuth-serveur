@@ -14,7 +14,7 @@
     "nuxt-auth-utils": "^0.5.30"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vue-tsc": "^3.3.11"
+    "typescript": "^7.0.2",
+    "vue-tsc": "^3.3.12"
   }
 }
