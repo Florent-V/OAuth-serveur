@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<body style="margin:0;padding:24px;background:#f3f4f6;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#111827">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:12px;padding:32px">
+            <tr><td>
+                <p style="margin:0 0 16px">Bonjour {{ name }},</p>
+                <p style="margin:0 0 16px">
+                    Voici votre code de connexion{% if application %} pour accéder à <strong>{{ application.name }}</strong>{% endif %} :
+                </p>
+                <p style="margin:0 0 16px;font-size:32px;font-weight:700;letter-spacing:8px;text-align:center">{{ code }}</p>
+                <p style="margin:0 0 16px;color:#6b7280;font-size:14px">
+                    Ce code est valable 10 minutes{% if expires_at %} (jusqu'à {{ expires_at|date('H:i', 'Europe/Paris') }}){% endif %}.
+                </p>
+                <p style="margin:0;color:#6b7280;font-size:14px">
+                    Si vous n'êtes pas à l'origine de cette connexion{% if ip %} (adresse IP {{ ip }}){% endif %}, ne communiquez ce code à personne
+                    et changez votre mot de passe : quelqu'un connaît peut-être votre mot de passe actuel.
+                </p>
+            </td></tr>
+        </table>
+    </td></tr></table>
+</body>
+</html>

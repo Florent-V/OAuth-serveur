@@ -1,0 +1,7 @@
+Bonjour {{ name }},
+
+Voici votre code de connexion{% if application %} pour accéder à {{ application.name }}{% endif %} : {{ code }}
+
+Ce code est valable 10 minutes.
+
+Si vous n'êtes pas à l'origine de cette connexion{% if ip %} (adresse IP {{ ip }}){% endif %}, ne communiquez ce code à personne et changez votre mot de passe.

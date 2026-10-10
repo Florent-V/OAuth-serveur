@@ -1,0 +1,32 @@
+league_oauth2_server:
+    authorization_server:
+        private_key: '%env(resolve:OAUTH_PRIVATE_KEY)%'
+        private_key_passphrase: '%env(OAUTH_PASSPHRASE)%'
+        encryption_key: '%env(OAUTH_ENCRYPTION_KEY)%'
+        # Durée de vie d'un access token (JWT). Courte = révocation plus rapide pour les applications
+        # qui valident le JWT localement sans appeler /api/userinfo.
+        access_token_ttl: '%env(OAUTH_ACCESS_TOKEN_TTL)%'
+        refresh_token_ttl: P1M
+        auth_code_ttl: PT10M
+        require_code_challenge_for_public_clients: true
+        enable_password_grant: false
+        enable_implicit_grant: false
+        enable_client_credentials_grant: false
+    resource_server:
+        public_key: '%env(resolve:OAUTH_PUBLIC_KEY)%'
+    scopes:
+        available: ['profile', 'email']
+        default: ['profile', 'email']
+    persistence:
+        doctrine: null
+    client:
+        # Entité App\Entity\Application = client OAuth2 + infos de l'application + utilisateurs autorisés
+        classname: App\Entity\Application
+        allow_plaintext_secrets: false
+
+when@test:
+    services:
+        league.oauth2_server.password_hasher:
+            class: Symfony\Component\PasswordHasher\Hasher\NativePasswordHasher
+            arguments:
+                $cost: 4

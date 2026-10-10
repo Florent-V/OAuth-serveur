@@ -1,0 +1,24 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title 'Tableau de bord' %}
+
+{% block main %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3"><div class="card-body">
+                <h5 class="card-title">{{ user_count }} utilisateur(s)</h5>
+                <a href="{{ ea_url().setController('App\\Controller\\Admin\\UserCrudController').setAction('index') }}">Gérer les utilisateurs et leurs accès</a>
+            </div></div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3"><div class="card-body">
+                <h5 class="card-title">{{ application_count }} application(s)</h5>
+                <a href="{{ ea_url().setController('App\\Controller\\Admin\\ApplicationCrudController').setAction('index') }}">Gérer les applications (clients OAuth2)</a>
+            </div></div>
+        </div>
+    </div>
+    <p class="text-muted">
+        Pour donner accès à une application : éditez l'utilisateur et ajoutez l'application dans « Applications autorisées »
+        (ou éditez l'application et ajoutez l'utilisateur).
+    </p>
+{% endblock %}

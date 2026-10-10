@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion – {{ site_name }}{% endblock %}
+
+{% block body %}
+    <h1>Connexion</h1>
+    <p class="subtitle">
+        {% if application %}
+            pour accéder à <span class="app-badge">{{ application.name }}</span>
+        {% else %}
+            Un seul compte pour toutes vos applications.
+        {% endif %}
+    </p>
+    {% if application and application.loginMessage %}
+        <p class="login-message">{{ application.loginMessage }}</p>
+    {% endif %}
+
+    {% if error %}
+        <div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ preview|default(false) ? '#' : path('app_login') }}"{% if preview|default(false) %} onsubmit="return false"{% endif %}>
+        <div class="field">
+            <label for="username">Adresse e-mail</label>
+            <input type="email" value="{{ last_username }}" name="_username" id="username" autocomplete="email" required autofocus>
+        </div>
+        <div class="field">
+            <label for="password" style="display:flex;justify-content:space-between">
+                <span>Mot de passe</span>
+                <a href="{{ path('app_forgot_password_request') }}" style="font-weight:400">Mot de passe oublié ?</a>
+            </label>
+            <input type="password" name="_password" id="password" autocomplete="current-password" required>
+        </div>
+        <div class="field">
+            <label class="checkbox"><input type="checkbox" name="_remember_me"> Rester connecté</label>
+        </div>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+        <button class="btn" type="submit">Se connecter</button>
+    </form>
+
+    <p class="footer-link">Pas encore de compte ? <a href="{{ path('app_register') }}">Créer un compte</a></p>
+{% endblock %}

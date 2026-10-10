@@ -1,0 +1,28 @@
+# Production : docker compose --env-file .env.docker -f compose.yaml -f compose.prod.yaml up -d
+services:
+  php:
+    build:
+      context: .
+      target: frankenphp_prod
+    image: ${IMAGE_NAME:-oauth-server}:${IMAGE_TAG:-latest}
+    # Secrets et paramètres de l'application (APP_SECRET, OAUTH_*, MAILER_*, MFA_*...)
+    env_file: .env.docker
+    ports:
+      # Écoute uniquement sur la machine : le Caddy de l'hôte fait le HTTPS (deploy/caddy/Caddyfile)
+      - "${HTTP_BIND:-127.0.0.1}:${HTTP_PORT:-8080}:8080"
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  database:
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

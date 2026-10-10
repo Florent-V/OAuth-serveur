@@ -1,0 +1,10 @@
+twig:
+    file_name_pattern: '*.twig'
+    form_themes: ['form/theme.html.twig']
+    globals:
+        site_name: '%env(SITE_NAME)%'
+        mfa_trusted_device_lifetime: '%env(int:MFA_TRUSTED_DEVICE_LIFETIME)%'
+
+when@test:
+    twig:
+        strict_variables: true

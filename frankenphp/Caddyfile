@@ -1,0 +1,40 @@
+# Caddy interne au conteneur (FrankenPHP). Il écoute en HTTP sur $SERVER_NAME (:8080) ;
+# le HTTPS est assuré par le Caddy de la machine hôte (voir deploy/caddy/Caddyfile).
+{
+	skip_install_trust
+	# Métriques Prometheus sur l'API d'admin (localhost:2019), utilisées par le HEALTHCHECK
+	metrics
+
+	{$CADDY_GLOBAL_OPTIONS}
+
+	frankenphp {
+		{$FRANKENPHP_CONFIG}
+	}
+}
+
+{$CADDY_EXTRA_CONFIG}
+
+{$SERVER_NAME::8080} {
+	log {
+		{$CADDY_SERVER_LOG_OPTIONS}
+		# Ne jamais écrire de secret dans les journaux (jeton de réinitialisation, paramètres OAuth2)
+		format filter {
+			# jeton de réinitialisation (dans le chemin) et paramètres OAuth2 sensibles (dans la query)
+			request>uri regexp "(/reset-password/reset/)[^?]+|([?&](?:code|code_verifier|client_secret)=)[^&]*" "${1}${2}REDACTED"
+			request>headers>Authorization delete
+			request>headers>Cookie delete
+		}
+	}
+
+	root /app/public
+	encode zstd br gzip
+	header -Server
+
+	# Fichiers statiques longtemps en cache (bundles EasyAdmin, logos)
+	@static path /bundles/* /uploads/*
+	header @static Cache-Control "public, max-age=604800"
+
+	{$CADDY_SERVER_EXTRA_DIRECTIVES}
+
+	php_server
+}

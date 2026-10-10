@@ -1,0 +1,43 @@
+# Configuration commune dev/prod.
+#   Dev  : docker compose up            (compose.yaml + compose.override.yaml, chargés automatiquement)
+#   Prod : docker compose --env-file .env.docker -f compose.yaml -f compose.prod.yaml up -d
+# Le plus simple : utiliser le Makefile (make help).
+services:
+  php:
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: ":8080"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=utf8
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+      # Clés RSA de signature des jetons (à sauvegarder !)
+      - oauth_keys:/app/config/jwt
+      # Logos des applications envoyés depuis l'admin
+      - oauth_uploads:/app/public/uploads
+
+  database:
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - database_data:/var/lib/postgresql/data
+
+volumes:
+  caddy_data:
+  caddy_config:
+  database_data:
+  oauth_keys:
+  oauth_uploads:

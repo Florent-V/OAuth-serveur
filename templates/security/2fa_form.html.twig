@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vérification – {{ site_name }}{% endblock %}
+
+{% block body %}
+    <h1>Vérification en deux étapes</h1>
+    <p class="subtitle">
+        Un code à 6 chiffres vient d'être envoyé à <strong>{{ app.user.email }}</strong>.
+        Il est valable 10 minutes.
+    </p>
+
+    {% if authenticationError %}
+        {# Messages de Symfony (ex. trop de tentatives) puis, à défaut, ceux du bundle MFA #}
+        {% set message = authenticationError|trans(authenticationErrorData, 'security') %}
+        {% if message == authenticationError|replace(authenticationErrorData) %}
+            {% set message = authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') %}
+        {% endif %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ checkPathUrl ? checkPathUrl : path(checkPathRoute) }}">
+        <div class="field">
+            <label for="_auth_code">Code reçu par e-mail</label>
+            <input id="_auth_code" type="text" name="{{ authCodeParameterName }}" autocomplete="one-time-code"
+                   inputmode="numeric" pattern="[0-9 ]*" maxlength="7" required autofocus
+                   style="font-size:1.5rem;letter-spacing:.4em;text-align:center">
+        </div>
+        {% if displayTrustedOption %}
+            <div class="field">
+                <label class="checkbox">
+                    <input type="checkbox" name="{{ trustedParameterName }}" value="1" checked>
+                    Faire confiance à cet appareil (ne plus demander de code pendant {{ (mfa_trusted_device_lifetime / 86400)|round }} jours)
+                </label>
+                <small class="muted">Décochez sur un ordinateur partagé ou public.</small>
+            </div>
+        {% endif %}
+        {% if isCsrfProtectionEnabled %}
+            <input type="hidden" name="{{ csrfParameterName }}" value="{{ csrf_token(csrfTokenId) }}">
+        {% endif %}
+        <button class="btn" type="submit">Valider</button>
+    </form>
+
+    <form method="post" action="{{ path('app_mfa_resend') }}" style="margin-top:12px">
+        <input type="hidden" name="_token" value="{{ csrf_token('mfa_resend') }}">
+        <button class="btn btn-secondary" type="submit">Je n'ai pas reçu le code : renvoyer</button>
+    </form>
+
+    <p class="footer-link"><a href="{{ logoutPath }}">Annuler et se déconnecter</a></p>
+{% endblock %}

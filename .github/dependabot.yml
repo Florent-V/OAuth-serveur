@@ -1,0 +1,18 @@
+# Mises à jour automatiques (pull requests hebdomadaires) : image de base, dépendances PHP, actions GitHub.
+version: 2
+updates:
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      symfony:
+        patterns: ["symfony/*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

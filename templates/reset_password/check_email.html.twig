@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vérifiez vos e-mails – {{ site_name }}{% endblock %}
+
+{% block body %}
+    <h1>Vérifiez vos e-mails</h1>
+    <div class="alert alert-info">
+        Si un compte existe avec cette adresse, un e-mail contenant un lien de réinitialisation vient d'être envoyé.
+        Ce lien est valable {{ lifetime_minutes }} minutes.
+    </div>
+    <p class="muted">Rien reçu ? Vérifiez vos courriers indésirables, ou refaites une demande dans quelques minutes.</p>
+
+    <p class="footer-link"><a href="{{ path('app_login') }}">Retour à la connexion</a></p>
+{% endblock %}

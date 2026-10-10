@@ -1,0 +1,9 @@
+framework:
+    mailer:
+        # Identifiants Brevo dans MAILER_DSN, ex. brevo+api://CLE_API@default
+        dsn: '%env(MAILER_DSN)%'
+        # Expéditeur de tous les e-mails (doit être un expéditeur validé dans Brevo)
+        envelope:
+            sender: '%env(MAILER_FROM_EMAIL)%'
+        headers:
+            From: '%env(MAILER_FROM_NAME)% <%env(MAILER_FROM_EMAIL)%>'

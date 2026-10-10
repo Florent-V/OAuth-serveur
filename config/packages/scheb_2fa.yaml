@@ -1,0 +1,30 @@
+# MFA par e-mail : https://symfony.com/bundles/SchebTwoFactorBundle/current/index.html
+scheb_two_factor:
+    security_tokens:
+        - Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken
+        - Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken
+
+    # Activation globale via MFA_ENABLED
+    two_factor_condition: App\Security\Mfa\MfaCondition
+
+    email:
+        enabled: true
+        digits: 6
+        code_generator: App\Security\Mfa\EmailCodeGenerator
+        mailer: App\Security\Mfa\AuthCodeMailer
+        template: security/2fa_form.html.twig
+
+    # « Faire confiance à cet appareil » : plus de code demandé sur ce navigateur pendant
+    # MFA_TRUSTED_DEVICE_LIFETIME secondes. Nouveau code exigé à l'expiration, sur un nouvel appareil,
+    # après un changement de mot de passe ou un « Déconnecter partout ».
+    trusted_device:
+        enabled: true
+        lifetime: '%env(int:MFA_TRUSTED_DEVICE_LIFETIME)%'
+        extend_lifetime: false
+        cookie_name: oauth_trusted_device
+        cookie_secure: auto
+        cookie_same_site: lax
+
+    # Empêche la réutilisation d'un code déjà accepté
+    code_reuse_cache: cache.app
+    code_reuse_cache_duration: 600

@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès refusé – {{ site_name }}{% endblock %}
+
+{% block body %}
+    <h1>Accès refusé</h1>
+    <p class="subtitle">Vous êtes connecté en tant que <strong>{{ app.user.userIdentifier }}</strong>.</p>
+
+    {% if disabled|default(false) %}
+        <div class="alert alert-danger" role="alert">
+            L'application <strong>{{ application.name }}</strong> est momentanément désactivée.
+        </div>
+
+        <p>Votre compte n'est pas en cause : l'administrateur a suspendu l'accès à cette application.</p>
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+            Vous n'avez pas accès à l'application <strong>{{ application.name }}</strong>.
+        </div>
+
+        <p>Votre compte est bien actif, mais cette application ne vous a pas encore été attribuée.
+           Contactez l'administrateur pour qu'il vous en donne l'accès.</p>
+    {% endif %}
+
+    <p><a class="btn btn-secondary" href="{{ path('app_home') }}">Voir mes applications</a></p>
+    <p class="footer-link"><a href="{{ path('app_logout') }}">Se connecter avec un autre compte</a></p>
+{% endblock %}

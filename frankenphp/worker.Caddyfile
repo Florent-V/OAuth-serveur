@@ -1,0 +1,6 @@
+# Mode worker (production) : Symfony est démarré une fois par worker et sert ensuite
+# toutes les requêtes, sans recharger le framework à chaque fois.
+worker {
+	file ./public/index.php
+	{$FRANKENPHP_WORKER_CONFIG}
+}

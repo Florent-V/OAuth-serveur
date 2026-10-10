@@ -1,0 +1,51 @@
+# Exemple de configuration Caddy (machine hôte, production).
+# Caddy obtient et renouvelle automatiquement le certificat HTTPS (Let's Encrypt).
+#
+# Installation : copiez ce bloc dans /etc/caddy/Caddyfile, adaptez le domaine, puis
+#   sudo systemctl reload caddy
+#
+# Le conteneur « php » écoute sur 127.0.0.1:${HTTP_PORT} (8080 par défaut, voir .env.docker).
+
+oauth.mydomain.com {
+	encode zstd gzip
+
+	header {
+		# HTTPS obligatoire pendant 1 an (n'ajoutez « preload » que si tous vos sous-domaines sont en HTTPS)
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+
+	# Caddy transmet automatiquement X-Forwarded-For / -Proto / -Host,
+	# pris en compte par Symfony grâce à TRUSTED_PROXIES=private_ranges.
+	reverse_proxy 127.0.0.1:8080 {
+		health_uri /login
+		health_interval 30s
+	}
+
+	log {
+		output file /var/log/caddy/oauth.access.log {
+			roll_size 20mb
+			roll_keep 10
+		}
+		# Pas de secret dans les journaux
+		format filter {
+			# jeton de réinitialisation (dans le chemin) et paramètres OAuth2 sensibles (dans la query)
+			request>uri regexp "(/reset-password/reset/)[^?]+|([?&](?:code|code_verifier|client_secret)=)[^&]*" "${1}${2}REDACTED"
+			request>headers>Authorization delete
+			request>headers>Cookie delete
+		}
+	}
+}
+
+# Vos applications, par exemple :
+# app1.mydomain.com {
+# 	reverse_proxy 127.0.0.1:8081
+# }
+
+# --- Variante : Caddy tourne lui aussi dans Docker -----------------------------
+# Mettez Caddy et le conteneur « php » sur un même réseau Docker externe (ex. « web »)
+# et visez le nom du service au lieu de 127.0.0.1 :
+#
+# oauth.mydomain.com {
+# 	reverse_proxy php:8080
+# }

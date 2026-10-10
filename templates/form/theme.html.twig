@@ -1,0 +1,22 @@
+{% use 'form_div_layout.html.twig' %}
+
+{% block form_row %}
+    <div class="field">
+        {{ form_label(form) }}
+        {{ form_widget(form) }}
+        {{ form_help(form) }}
+        {{ form_errors(form) }}
+    </div>
+{% endblock %}
+
+{% block form_errors %}
+    {% if errors|length > 0 %}
+        <ul class="form-error">
+            {% for error in errors %}<li>{{ error.message }}</li>{% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
+
+{% block repeated_row %}
+    {{ block('form_rows') }}
+{% endblock %}

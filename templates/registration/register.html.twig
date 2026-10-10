@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription – {{ site_name }}{% endblock %}
+
+{% block body %}
+    <h1>Créer un compte</h1>
+    <p class="subtitle">
+        {% if application %}
+            pour accéder à <span class="app-badge">{{ application.name }}</span>
+        {% else %}
+            Un seul compte pour toutes vos applications.
+        {% endif %}
+    </p>
+    {% if application and application.loginMessage %}
+        <p class="login-message">{{ application.loginMessage }}</p>
+    {% endif %}
+
+    <div class="alert alert-info">
+        Vous avez déjà un compte pour une autre application&nbsp;? Inutile de vous réinscrire&nbsp;:
+        <a href="{{ path('app_login') }}">connectez-vous</a> avec vos identifiants habituels.
+    </div>
+
+    {{ form_start(form) }}
+        {{ form_row(form.username) }}
+        {{ form_row(form.email) }}
+        {{ form_row(form.plainPassword) }}
+        <button class="btn" type="submit">Créer mon compte</button>
+    {{ form_end(form) }}
+
+    <p class="footer-link">Déjà inscrit ? <a href="{{ path('app_login') }}">Se connecter</a></p>
+{% endblock %}

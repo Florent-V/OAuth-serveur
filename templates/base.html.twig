@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>{% block title %}{{ site_name }}{% endblock %}</title>
+    <style>
+        :root {
+            --bg: #f3f4f6; --card: #ffffff; --text: #111827; --muted: #6b7280; --border: #e5e7eb;
+            --primary: #2563eb; --primary-hover: #1d4ed8; --danger: #b91c1c; --danger-bg: #fef2f2;
+            --warning: #92400e; --warning-bg: #fffbeb; --success: #065f46; --success-bg: #ecfdf5;
+            --info: #1e40af; --info-bg: #eff6ff;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8; --border: #334155;
+                --primary: #3b82f6; --primary-hover: #60a5fa; --danger: #fca5a5; --danger-bg: #450a0a;
+                --warning: #fcd34d; --warning-bg: #422006; --success: #6ee7b7; --success-bg: #022c22;
+                --info: #93c5fd; --info-bg: #172554;
+            }
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+               padding: 24px 16px; background: var(--bg-page, var(--bg)); color: var(--text);
+               font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+        .card { width: 100%; max-width: {% block card_width %}420px{% endblock %}; background: var(--card); border: 1px solid var(--border);
+                border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+        h1 { font-size: 1.5rem; margin: 0 0 4px; }
+        .subtitle { color: var(--muted); margin: 0 0 24px; }
+        label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 6px; }
+        input[type=email], input[type=password], input[type=text] {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+            background: var(--bg); color: var(--text); font-size: 1rem; }
+        input:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+        .field { margin-bottom: 16px; }
+        .checkbox { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+        .btn { display: inline-block; width: 100%; padding: 11px 16px; border: 0; border-radius: 8px; cursor: pointer;
+               background: var(--primary); color: #fff; font-size: 1rem; font-weight: 600; text-align: center; text-decoration: none; }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-secondary { background: transparent; color: var(--primary); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--bg); }
+        .alert { padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; font-size: .95rem; }
+        .alert-danger { background: var(--danger-bg); color: var(--danger); }
+        .alert-warning { background: var(--warning-bg); color: var(--warning); }
+        .alert-success { background: var(--success-bg); color: var(--success); }
+        .alert-info { background: var(--info-bg); color: var(--info); }
+        .help-text { color: var(--muted); font-size: .85rem; margin-top: 4px; }
+        .form-error { color: var(--danger); font-size: .85rem; margin-top: 4px; list-style: none; padding: 0; }
+        .footer-link { margin-top: 20px; text-align: center; color: var(--muted); font-size: .95rem; }
+        a { color: var(--primary); }
+        .app-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--info-bg); color: var(--info); font-weight: 600; }
+        .apps { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+        .apps a { display: block; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; text-decoration: none; color: var(--text); }
+        .apps a:hover { border-color: var(--primary); }
+        .apps small { display: block; color: var(--muted); }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+        .topbar a { font-size: .9rem; }
+        .muted { color: var(--muted); }
+        .brand-logo { display: block; max-height: 64px; max-width: 220px; margin: 0 auto 20px; object-fit: contain; }
+        .login-message { margin: -12px 0 20px; white-space: pre-line; }
+        .preview-banner { position: fixed; top: 0; left: 0; right: 0; padding: 6px; text-align: center; font-size: .85rem;
+                          background: #111827; color: #fff; }
+        .branded .btn:hover { filter: brightness(.9); }
+    </style>
+    {# Personnalisation par application (couleurs validées au format #rrggbb) #}
+    {% set brand = application is defined ? application : pending_application() %}
+    {% if brand %}
+        {% set hex = '/^#[0-9a-f]{6}$/' %}
+        <style>
+            :root {
+                {% if brand.primaryColor and brand.primaryColor matches hex %}--primary: {{ brand.primaryColor }}; --primary-hover: {{ brand.primaryColor }}; --info: {{ brand.primaryColor }};{% endif %}
+                {% if brand.backgroundColor and brand.backgroundColor matches hex %}--bg-page: {{ brand.backgroundColor }};{% endif %}
+            }
+        </style>
+    {% endif %}
+</head>
+<body{% if brand %} class="branded"{% endif %}>
+    {% if preview|default(false) %}<div class="preview-banner">Aperçu de la page de connexion de « {{ brand.name }} » – formulaire désactivé</div>{% endif %}
+    <main class="card">
+        {% if brand and brand.logo %}
+            <img class="brand-logo" src="{{ asset('uploads/logos/' ~ brand.logo) }}" alt="{{ brand.name }}">
+        {% endif %}
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ type }}" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+        {% block body %}{% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block card_width %}560px{% endblock %}
+
+{% block body %}
+    <div class="topbar">
+        <div>
+            <h1>Bonjour {{ app.user.username }}</h1>
+            <span class="muted">{{ app.user.email }}</span>
+        </div>
+        <div>
+            {% if is_granted('ROLE_ADMIN') %}<a href="{{ path('admin') }}">Administration</a> · {% endif %}
+            <a href="{{ path('app_logout') }}">Déconnexion</a>
+        </div>
+    </div>
+
+    <h2>Mes applications</h2>
+    {% if applications is empty %}
+        <div class="alert alert-info">
+            Aucune application ne vous est attribuée pour le moment. Contactez l'administrateur.
+        </div>
+    {% else %}
+        <ul class="apps">
+            {% for application in applications %}
+                <li>
+                    {% if application.homeUrl %}
+                        <a href="{{ application.homeUrl }}">
+                            {% if application.logo %}<img src="{{ asset('uploads/logos/' ~ application.logo) }}" alt="" style="max-height:28px;vertical-align:middle;margin-right:8px">{% endif %}
+                            <strong>{{ application.name }}</strong>
+                            {% if application.description %}<small>{{ application.description }}</small>{% endif %}
+                        </a>
+                    {% else %}
+                        <a><strong>{{ application.name }}</strong>{% if application.description %}<small>{{ application.description }}</small>{% endif %}</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

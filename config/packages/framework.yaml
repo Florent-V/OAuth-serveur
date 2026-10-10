@@ -1,0 +1,63 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+    secret: '%env(APP_SECRET)%'
+    enabled_locales: ['fr']
+
+    # Derrière un reverse proxy (Traefik, Nginx, Caddy...) qui termine le HTTPS
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix']
+
+    session:
+        name: OAUTHSESSID
+        cookie_secure: auto
+        cookie_samesite: lax
+        cookie_httponly: true
+
+    rate_limiter:
+        registration:
+            policy: sliding_window
+            limit: 5
+            interval: '1 hour'
+        # Demandes « mot de passe oublié » par IP
+        password_reset:
+            policy: sliding_window
+            limit: 5
+            interval: '15 minutes'
+        # Essais de code MFA par utilisateur
+        mfa_check:
+            policy: sliding_window
+            limit: 5
+            interval: '15 minutes'
+        # Renvois de code MFA par utilisateur
+        mfa_resend:
+            policy: sliding_window
+            limit: 3
+            interval: '15 minutes'
+
+    http_client:
+        scoped_clients:
+            # OpenID Connect Back-Channel Logout : appels du serveur vers les applications
+            backchannel_logout.client:
+                scope: '.*'
+                timeout: 5
+                max_duration: 10
+                headers:
+                    User-Agent: 'OAuth2-SSO back-channel logout'
+                # Une déconnexion peut être rejouée sans risque : POST réessayé aussi après une erreur
+                # réseau (0) ou serveur (5xx), contrairement au comportement par défaut
+                retry_failed:
+                    max_retries: 2
+                    delay: 500
+                    http_codes: [0, 429, 500, 502, 503, 504]
+
+when@test:
+    framework:
+        test: true
+        http_client:
+            # Aucune requête réelle en test : les appels sont enregistrés (voir tests/Support)
+            mock_response_factory: App\Tests\Support\RecordingHttpClient
+        session:
+            storage_factory_id: session.storage.factory.mock_file
+        rate_limiter:
+            registration:
+                policy: no_limit

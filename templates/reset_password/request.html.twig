@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mot de passe oublié – {{ site_name }}{% endblock %}
+
+{% block body %}
+    <h1>Mot de passe oublié</h1>
+    <p class="subtitle">Saisissez l'adresse e-mail de votre compte : vous recevrez un lien pour choisir un nouveau mot de passe.</p>
+
+    {{ form_start(form) }}
+        {{ form_row(form.email) }}
+        <button class="btn" type="submit">Envoyer le lien</button>
+    {{ form_end(form) }}
+
+    <p class="footer-link"><a href="{{ path('app_login') }}">Retour à la connexion</a></p>
+{% endblock %}

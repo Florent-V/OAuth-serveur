@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Tests (PHP 8.4, PostgreSQL 16)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U app" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, pdo_pgsql, pdo_sqlite, zip, gd
+          coverage: none
+      - uses: ramsey/composer-install@v4
+      - name: Validation Composer / conteneur / Twig
+        run: |
+          composer validate --no-check-publish
+          composer audit
+          php bin/console lint:container --env=test
+          php bin/console lint:twig templates --env=test
+          php bin/console lint:yaml config --env=test
+      - name: Tests (SQLite)
+        run: php bin/phpunit
+      - name: Tests (PostgreSQL) + migrations
+        env:
+          DATABASE_URL: postgresql://app:app@127.0.0.1:5432/app_test?serverVersion=16&charset=utf8
+        run: |
+          php bin/console doctrine:migrations:migrate --no-interaction --env=test
+          php bin/console doctrine:schema:validate --env=test
+          php bin/phpunit
+
+  docker:
+    name: Image Docker (prod)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - name: Build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: frankenphp_prod
+          tags: oauth-server:ci
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Taille de l'image
+        run: |
+          docker image ls oauth-server:ci --format '{{.Repository}}:{{.Tag}} {{.Size}}'
+          docker history oauth-server:ci --format '{{.Size}}\t{{.CreatedBy}}' | grep -v '^0B' | cut -c1-100
+          docker run --rm --entrypoint sh oauth-server:ci -c '
+            du -xsh /usr/local /usr/lib /usr/share /app/vendor 2>/dev/null
+            echo "--- plus gros paquets (Ko)"; dpkg-query -Wf "\${Installed-Size}\t\${Package}\n" | sort -n | tail -15'
+      # --entrypoint : la simple validation ne doit pas passer par le script de démarrage (secrets, base…)
+      - name: Validation du Caddyfile
+        run: docker run --rm --entrypoint frankenphp oauth-server:ci validate --config /etc/frankenphp/Caddyfile
+      - name: Démarrage de la stack de prod
+        run: |
+          cp .env.docker.dist .env.docker
+          sed -i \
+            -e "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=ci-password|" \
+            -e "s|^APP_SECRET=.*|APP_SECRET=$(openssl rand -hex 32)|" \
+            -e "s|^OAUTH_PASSPHRASE=.*|OAUTH_PASSPHRASE=$(openssl rand -hex 16)|" \
+            -e "s|^OAUTH_ENCRYPTION_KEY=.*|OAUTH_ENCRYPTION_KEY=$(openssl rand -hex 32)|" \
+            -e "s|^MAILER_DSN=.*|MAILER_DSN=null://null|" \
+            -e "s|^IMAGE_TAG=.*|IMAGE_TAG=ci|" \
+            .env.docker
+          docker compose --env-file .env.docker -f compose.yaml -f compose.prod.yaml up --detach --wait --no-build
+          curl -fsS -o /dev/null -w "GET /login -> %{http_code}\n" http://127.0.0.1:8080/login
+      - name: Journaux en cas d'échec
+        if: failure()
+        run: test -f .env.docker && docker compose --env-file .env.docker -f compose.yaml -f compose.prod.yaml logs || true
