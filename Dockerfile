@@ -145,9 +145,9 @@ RUN set -eux; \
     # (perl-base, paquet essentiel de Debian utilisé par dpkg, reste ; le paquet perl complet, non)
     if dpkg -s perl > /dev/null 2>&1; then echo 'Paquet perl encore présent' >&2; exit 1; fi; \
     test -s /etc/mime.types; command -v curl; frankenphp version; php -m > /dev/null; \
-    # Le binaire php (21 Mo) fait doublon avec PHP intégré à FrankenPHP : « php » devient un raccourci
-    printf '#!/bin/sh\nexec frankenphp php-cli "$@"\n' > /usr/local/bin/php; \
-    echo '<?php echo PHP_SAPI;' > /tmp/sapi.php; test "$(php /tmp/sapi.php)" = cli; rm /tmp/sapi.php
+    # Le vrai binaire php est conservé : « frankenphp php-cli » ne transmet pas $argv comme php
+    # (v1.13 : $argv[0] = "frankenphp", le script devient $argv[1] → bin/console prend son propre nom pour la commande)
+    echo '<?php echo implode(" ", $argv);' > /tmp/argv.php; test "$(php /tmp/argv.php a b)" = '/tmp/argv.php a b'; rm /tmp/argv.php
 
 # ---------------------------------------------------------------------------
 # Production : image finale aplatie (une couche système, une couche application)
@@ -184,6 +184,10 @@ COPY --link --from=frankenphp_build /app /app
 COPY --link --from=frankenphp_build --chown=${APP_UID}:${APP_GID} /app/var /app/var
 COPY --link --from=frankenphp_build --chown=${APP_UID}:${APP_GID} /app/config/jwt /app/config/jwt
 COPY --link --from=frankenphp_build --chown=${APP_UID}:${APP_GID} /app/public/uploads /app/public/uploads
+# (avec --link, --chown ne s'applique qu'au contenu copié : les dossiers cibles eux-mêmes restent à root,
+# or les volumes nommés héritent du propriétaire de ces dossiers à leur création)
+RUN chown ${APP_UID}:${APP_GID} /app/var /app/config/jwt /app/public/uploads \
+    && chown root:root /app
 
 EXPOSE 8080
 
