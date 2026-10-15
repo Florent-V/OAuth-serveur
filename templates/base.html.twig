@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>{% block title %}{{ site_name }}{% endblock %}</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="48x48">
+    <link rel="icon" href="{{ asset('favicon-32x32.png') }}" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+    <meta name="theme-color" content="#0f172a">
     <style>
         :root {
             --bg: #f3f4f6; --card: #ffffff; --text: #111827; --muted: #6b7280; --border: #e5e7eb;
@@ -58,6 +63,8 @@
         .topbar a { font-size: .9rem; }
         .muted { color: var(--muted); }
         .brand-logo { display: block; max-height: 64px; max-width: 220px; margin: 0 auto 20px; object-fit: contain; }
+        .site-logo { display: block; width: 72px; height: 72px; margin: 0 auto 16px; border-radius: 16px;
+                     box-shadow: 0 4px 14px rgba(15, 23, 42, .25); }
         .login-message { margin: -12px 0 20px; white-space: pre-line; }
         .preview-banner { position: fixed; top: 0; left: 0; right: 0; padding: 6px; text-align: center; font-size: .85rem;
                           background: #111827; color: #fff; }
@@ -80,6 +87,8 @@
     <main class="card">
         {% if brand and brand.logo %}
             <img class="brand-logo" src="{{ asset('uploads/logos/' ~ brand.logo) }}" alt="{{ brand.name }}">
+        {% else %}
+            <img class="site-logo" src="{{ asset('images/vauban-logo-256.png') }}" alt="{{ site_name }}" width="72" height="72">
         {% endif %}
         {% for type, messages in app.flashes %}
             {% for message in messages %}
