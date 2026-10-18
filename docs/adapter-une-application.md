@@ -49,8 +49,8 @@ chaque application qui s'adapte, quel que soit son langage. Le principe est touj
    | Secret de session de l'application | `openssl rand -hex 32` |
 
 5. **Rattacher vos comptes existants** : si l'application a déjà une table d'utilisateurs, ajoutez-y une colonne
-   `sso_id` (l'`id` du serveur). Au premier login d'un utilisateur, retrouvez son compte par e-mail une seule fois,
-   enregistrez `sso_id`, puis n'utilisez plus que lui.
+   `sso_id` de type texte (`VARCHAR(36)` ou `UUID`) pour l'`id` du serveur, un UUID. Au premier login d'un
+   utilisateur, retrouvez son compte par e-mail une seule fois, enregistrez `sso_id`, puis n'utilisez plus que lui.
 6. **Même domaine** : servez le front et la partie serveur sous le même domaine (voir la
    [configuration Caddy](#même-domaine-pour-le-front-et-lapi) plus bas).
 
@@ -272,7 +272,7 @@ def process(image_id: int, user: dict = Depends(current_user)):
     ...  # user["id"] = identifiant stable de l'utilisateur
 ```
 
-Contenu d'un access token : `aud` (client ID), `exp`, `sub` (e-mail), `uid` (id stable), `email`, `name`, `preferred_username` (pseudo), `scopes`.
+Contenu d'un access token : `aud` (client ID), `exp`, `sub` (e-mail), `uid` (identifiant stable, UUID), `email`, `name`, `preferred_username` (pseudo), `scopes`.
 Il n'y a pas de claim `iss` dans les access tokens : la signature et `aud` suffisent.
 
 ### Traitements longs (images, PDF)
@@ -338,7 +338,7 @@ def _b64url(data: bytes) -> str:
 
 def _db() -> sqlite3.Connection:
     db = sqlite3.connect(STATE_DB, timeout=15, isolation_level=None)
-    db.execute("CREATE TABLE IF NOT EXISTS revocations (uid INTEGER PRIMARY KEY, revoked_at REAL)")
+    db.execute("CREATE TABLE IF NOT EXISTS revocations (uid TEXT PRIMARY KEY, revoked_at REAL)")
     db.execute("CREATE TABLE IF NOT EXISTS refreshes (old_token TEXT PRIMARY KEY, tokens TEXT, created_at REAL)")
     return db
 
@@ -436,17 +436,17 @@ def verify_logout_token(logout_token: str) -> int:
         raise jwt.InvalidTokenError("pas un logout token")
     if abs(time.time() - claims["iat"]) > 300:
         raise jwt.InvalidTokenError("jeton trop ancien")
-    return int(claims["uid"])
+    return str(claims["uid"])
 
 
-def mark_revoked(uid: int) -> None:
+def mark_revoked(uid: str) -> None:
     """Toutes les sessions de cet utilisateur ouvertes avant maintenant deviennent invalides."""
     db = _db()
     db.execute("INSERT OR REPLACE INTO revocations VALUES (?, ?)", (uid, time.time()))
     db.close()
 
 
-def is_revoked(uid: int, logged_in_at: float) -> bool:
+def is_revoked(uid: str, logged_in_at: float) -> bool:
     db = _db()
     row = db.execute("SELECT revoked_at FROM revocations WHERE uid = ?", (uid,)).fetchone()
     db.close()
@@ -631,7 +631,7 @@ Pour une application qui utilisait Casdoor (vérification d'un rôle au login, p
 | `isForbidden` / `isDeleted` | Compte bloqué / supprimé : renouvellement refusé et logout token envoyé |
 | Re-contrôle toutes les N minutes via `/api/get-user` (API d'administration propriétaire) | **Couche 1** (renouvellement du jeton toutes les 15 min, standard) + **couche 3** (back-channel logout, quelques secondes, standard) |
 | `authCheckedAt` en session, cache mémoire par utilisateur | `logged_in_at` en session + registre des révocations |
-| Identifiant `org/username` | `id` / `uid` (entier stable) |
+| Identifiant `org/username` | `id` / `uid` (UUID stable) |
 | Découverte OIDC, `id_token` | Non utilisés : URL saisies à la main, identité via `/api/userinfo` |
 
 Étapes :

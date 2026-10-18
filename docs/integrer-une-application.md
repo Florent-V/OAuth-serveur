@@ -184,12 +184,12 @@ curl -H "Authorization: Bearer <access_token>" https://oauth.mydomain.com/api/us
 ```
 
 ```json
-{ "sub": "alice@mydomain.com", "id": 42, "preferred_username": "alice", "name": "alice", "email": "alice@mydomain.com" }
+{ "sub": "alice@mydomain.com", "id": "3f6c2b1e-8d4a-4c7e-9b2f-5a1d0e7c4b93", "preferred_username": "alice", "name": "alice", "email": "alice@mydomain.com" }
 ```
 
 | Champ | Présent si | Description |
 |---|---|---|
-| `id` | toujours | **Identifiant stable** de l'utilisateur (entier). À utiliser comme clé dans votre base. |
+| `id` | toujours | **Identifiant stable** de l'utilisateur (UUID, chaîne de 36 caractères). À utiliser comme clé dans votre base. |
 | `sub` | toujours | Identifiant de connexion (l'e-mail). Peut changer. |
 | `email` | scope `email` | Adresse e-mail (vérifiée). |
 | `preferred_username` | scope `profile` | **Pseudo** choisi à l'inscription, unique (insensible à la casse). Peut être modifié par un administrateur : ne pas l'utiliser comme clé. |
@@ -212,7 +212,7 @@ l'administrateur), votre application peut le vérifier elle-même. Contenu (*cla
   "iat": 1790812800, "nbf": 1790812800, "exp": 1790813700,
   "sub": "alice@mydomain.com",
   "scopes": ["profile", "email"],
-  "uid": 42,
+  "uid": "3f6c2b1e-8d4a-4c7e-9b2f-5a1d0e7c4b93",
   "email": "alice@mydomain.com",
   "preferred_username": "alice",
   "name": "alice"
@@ -299,7 +299,7 @@ logout_token=eyJ0eXAiOiJsb2dvdXQrand0IiwiYWxnIjoiUlMyNTYifQ…
   "iat": 1790950000, "exp": 1790950120,
   "jti": "5d1c0a9e3f7b4c2a8e6d1f0b9a7c3e21",
   "sub": "alice@mydomain.com",
-  "uid": 42,
+  "uid": "3f6c2b1e-8d4a-4c7e-9b2f-5a1d0e7c4b93",
   "events": { "http://schemas.openid.net/event/backchannel-logout": {} }
 }
 ```
@@ -360,7 +360,7 @@ if (empty($_GET['state']) || $_GET['state'] !== ($_SESSION['oauth_state'] ?? nul
 }
 $provider->setPkceCode($_SESSION['oauth_pkce']);
 $token = $provider->getAccessToken('authorization_code', ['code' => $_GET['code']]);
-$user = $provider->getResourceOwner($token)->toArray();   // ['id' => 42, 'email' => …, 'name' => …]
+$user = $provider->getResourceOwner($token)->toArray();   // ['id' => '3f6c2b1e-8d4a-4c7e-9b2f-5a1d0e7c4b93', 'email' => …, 'name' => …]
 
 $_SESSION['user_id'] = $user['id'];
 $_SESSION['token'] = $token->jsonSerialize();             // access + refresh token

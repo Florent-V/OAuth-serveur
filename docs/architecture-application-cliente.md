@@ -106,7 +106,7 @@ CSRF (la sécurité vient de la signature du jeton), et elle doit être joignabl
 
 ### 6. Utilisateur identifié par son `id`
 
-La clé de l'utilisateur dans l'application est son **`id`** (`/api/userinfo`) ou **`uid`** (JWT, logout token) :
+La clé de l'utilisateur dans l'application est son **`id`** (`/api/userinfo`) ou **`uid`** (JWT, logout token), un UUID :
 stable, alors que l'e-mail peut changer. Un rattachement à des comptes existants par e-mail se fait une seule fois,
 au premier login.
 
@@ -171,7 +171,7 @@ En-tête et contenu du jeton :
   "exp": 1790950120,
   "jti": "5d1c0a9e3f7b4c2a8e6d1f0b9a7c3e21",
   "sub": "alice@mydomain.com",
-  "uid": 42,
+  "uid": "3f6c2b1e-8d4a-4c7e-9b2f-5a1d0e7c4b93",
   "events": { "http://schemas.openid.net/event/backchannel-logout": {} }
 }
 ```

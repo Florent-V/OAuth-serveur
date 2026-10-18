@@ -32,7 +32,7 @@ final class AccessTokenClaimsSubscriber
         }
 
         $event->setExtraClaims([
-            'uid' => $user->getId(),
+            'uid' => $user->getUuid()->toRfc4122(),
             'email' => $user->getEmail(),
             'preferred_username' => $user->getUsername(),
             // Doublon de preferred_username, conservé pour les applications qui lisent « name ».

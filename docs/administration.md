@@ -139,6 +139,37 @@ l'ajout du pseudo en ont reçu un automatiquement (partie locale de l'e-mail sui
 L'adresse e-mail est vérifiée par le code envoyé à la première connexion. Les inscriptions sont
 limitées à 5 par heure et par adresse IP.
 
+### Importer les comptes d'une application existante
+
+Pour une application qui gérait elle-même ses comptes, la commande `app:user:import` crée les comptes à partir d'un
+fichier JSON exporté par l'application :
+
+```json
+[
+  { "email": "alice@mydomain.com", "username": "alice", "password": "$2a$10$…" }
+]
+```
+
+- **Mots de passe** : un hash **bcrypt** (`$2a$`, `$2b$`, `$2y$`, par exemple produit par `bcryptjs`, `password_hash()`
+  ou `passlib`) est repris tel quel : l'utilisateur se connecte avec **son mot de passe habituel**, et le hash est
+  mis à niveau à sa première connexion. Autre format ou champ absent : le compte est créé sans mot de passe
+  utilisable, l'utilisateur passe par « Mot de passe oublié ».
+- **Pseudo** : celui de l'application s'il respecte les règles, sinon corrigé (caractères interdits retirés, numéro
+  ajouté s'il est déjà pris).
+- **E-mail déjà présent** sur le serveur : le compte n'est pas modifié (mot de passe et pseudo conservés) ; seul
+  l'accès à l'application est ajouté avec `--grant`.
+
+```bash
+docker compose --env-file .env.docker -f compose.yaml -f compose.prod.yaml cp users.json php:/tmp/users.json
+make prod-console c='app:user:import /tmp/users.json --grant=app1 --dry-run'   # simulation
+make prod-console c='app:user:import /tmp/users.json --grant=app1'
+docker compose --env-file .env.docker -f compose.yaml -f compose.prod.yaml exec php rm /tmp/users.json
+```
+
+Le fichier contient des hash de mots de passe : supprimez-le partout après l'import. Côté application, rattachez
+ensuite chaque compte local au premier login : retrouvé une seule fois par e-mail, il garde ensuite l'`id` (UUID)
+du serveur comme clé ([Adapter une application](adapter-une-application.md#0-avant-de-commencer-tous-les-cas), point 5).
+
 ## Donner ou retirer l'accès à une application
 
 Trois façons, au choix :
@@ -195,6 +226,7 @@ sont prévus : voir la [feuille de route](../ROADMAP.md).
 | Commande Symfony | Rôle |
 |---|---|
 | `app:user:create <email> [--username=…] [--admin] [--password=…]` | Créer un utilisateur (pseudo déduit de l'e-mail si absent) |
+| `app:user:import <fichier.json> [--grant=<client_id>] [--dry-run]` | Importer les comptes d'une application, mots de passe bcrypt conservés |
 | `app:user:revoke <email> [--logout-only]` | Bloquer (ou seulement déconnecter partout) |
 | `app:application:create <nom> [--id] [--home-url] [--redirect-uri]… [--backchannel-logout-uri] [--public] [--open-registration] [--skip-if-exists]` | Déclarer une application |
 | `app:application:test-backchannel-logout <client_id> <email>` | Envoyer un logout token à l'application (test de son URL) |

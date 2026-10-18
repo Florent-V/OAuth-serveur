@@ -33,9 +33,9 @@ final class LogoutTokenFactory
 
     /**
      * @param string $subject identifiant de l'utilisateur, identique au « sub » des access tokens (son e-mail)
-     * @param int    $uid     identifiant stable de l'utilisateur (« uid » des access tokens, « id » de /api/userinfo)
+     * @param string $uid     identifiant stable de l'utilisateur, UUID (« uid » des access tokens, « id » de /api/userinfo)
      */
-    public function create(string $clientId, string $subject, int $uid): string
+    public function create(string $clientId, string $subject, string $uid): string
     {
         $configuration = $this->configuration();
         $now = new \DateTimeImmutable('@'.time());
