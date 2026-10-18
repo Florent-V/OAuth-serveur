@@ -23,7 +23,7 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 final class BackchannelLogoutNotifier implements EventSubscriberInterface, ResetInterface
 {
-    /** @var array<string, array{client: string, uri: string, sub: string, uid: int}> */
+    /** @var array<string, array{client: string, uri: string, sub: string, uid: string}> */
     private array $pending = [];
 
     public function __construct(
@@ -51,7 +51,7 @@ final class BackchannelLogoutNotifier implements EventSubscriberInterface, Reset
                 'client' => $application->getIdentifier(),
                 'uri' => $uri,
                 'sub' => $user->getUserIdentifier(),
-                'uid' => $user->getId(),
+                'uid' => $user->getUuid()->toRfc4122(),
             ];
         }
     }
@@ -112,7 +112,7 @@ final class BackchannelLogoutNotifier implements EventSubscriberInterface, Reset
     }
 
     /**
-     * @param array{client: string, uri: string, sub: string, uid: int} $notification
+     * @param array{client: string, uri: string, sub: string, uid: string} $notification
      */
     private function failure(array $notification, string $error): string
     {

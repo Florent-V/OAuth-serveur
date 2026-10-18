@@ -36,9 +36,9 @@ class ApiController extends AbstractController
         }
 
         $scopes = $token->getScopes();
-        // "sub" = identifiant de l'utilisateur dans le JWT (son e-mail) ; "id" = identifiant stable
+        // "sub" = identifiant de l'utilisateur dans le JWT (son e-mail) ; "id" = identifiant stable (UUID)
         // (ne change pas si l'e-mail est modifié) : à utiliser comme clé côté application.
-        $data = ['sub' => $user->getUserIdentifier(), 'id' => $user->getId()];
+        $data = ['sub' => $user->getUserIdentifier(), 'id' => $user->getUuid()->toRfc4122()];
 
         if (\in_array('profile', $scopes, true)) {
             $data['preferred_username'] = $user->getUsername();

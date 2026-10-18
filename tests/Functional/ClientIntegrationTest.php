@@ -6,6 +6,8 @@ use App\Entity\Application;
 use League\Bundle\OAuth2ServerBundle\OAuth2Grants;
 use League\Bundle\OAuth2ServerBundle\ValueObject\Grant;
 use League\Bundle\OAuth2ServerBundle\ValueObject\RedirectUri;
+use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Uid\UuidV4;
 
 /**
  * Comportements dont dépendent les applications clientes (voir docs/integrer-une-application.md).
@@ -80,7 +82,8 @@ class ClientIntegrationTest extends FunctionalTestCase
         self::assertSame('alice@example.com', $claims['sub']);
         self::assertSame('alice', $claims['preferred_username']);
         self::assertSame('alice', $claims['name']);
-        self::assertIsInt($claims['uid']);
+        self::assertTrue(Uuid::isValid($claims['uid']));
+        self::assertInstanceOf(UuidV4::class, Uuid::fromString($claims['uid']));
         self::assertEqualsCanonicalizing(['profile', 'email'], $claims['scopes']);
         self::assertGreaterThan(time(), $claims['exp']);
     }

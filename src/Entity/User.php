@@ -8,15 +8,18 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EmailTwoFactorInterface;
 use Scheb\TwoFactorBundle\Model\TrustedDeviceInterface;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'uniq_user_email', columns: ['email'])]
 #[ORM\UniqueConstraint(name: 'uniq_user_username', columns: ['username'])]
+#[ORM\UniqueConstraint(name: 'uniq_user_uuid', columns: ['uuid'])]
 #[UniqueEntity(fields: ['email'], message: 'Un compte existe déjà avec cette adresse e-mail.')]
 // Unicité insensible à la casse : « Bob » et « bob » ne peuvent pas coexister.
 #[UniqueEntity(fields: ['username'], message: 'Ce pseudo est déjà pris.', repositoryMethod: 'findByUsernameInsensitive')]
@@ -32,6 +35,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, EmailTw
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    /**
+     * Identifiant public et stable (UUIDv4 aléatoire), seul identifiant communiqué aux applications
+     * (« uid » des JWT, « id » de /api/userinfo). L'id entier reste interne : il révélerait l'ordre
+     * d'inscription et le nombre de comptes, et permettrait de les énumérer.
+     */
+    #[ORM\Column(type: UuidType::NAME)]
+    private Uuid $uuid;
 
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank]
@@ -98,6 +109,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, EmailTw
 
     public function __construct()
     {
+        $this->uuid = Uuid::v4();
         $this->createdAt = new \DateTimeImmutable();
         $this->applications = new ArrayCollection();
     }
@@ -105,6 +117,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, EmailTw
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getUuid(): Uuid
+    {
+        return $this->uuid;
     }
 
     public function getEmail(): string

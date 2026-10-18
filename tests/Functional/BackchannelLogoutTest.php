@@ -62,7 +62,7 @@ class BackchannelLogoutTest extends FunctionalTestCase
         self::assertSame(rtrim((string) $_SERVER['DEFAULT_URI'], '/'), $claims['iss']);
         self::assertSame('app1', \is_array($claims['aud']) ? $claims['aud'][0] : $claims['aud']);
         self::assertSame('alice@example.com', $claims['sub']);
-        self::assertSame($this->alice->getId(), $claims['uid']);
+        self::assertSame($this->alice->getUuid()->toRfc4122(), $claims['uid']);
         self::assertSame([], (array) $claims['events']['http://schemas.openid.net/event/backchannel-logout']);
         self::assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $claims['jti']);
         self::assertEqualsWithDelta(time(), $claims['iat'], 5);
@@ -79,8 +79,8 @@ class BackchannelLogoutTest extends FunctionalTestCase
 
     public function testDeletedUserIsStillIdentifiedInTheToken(): void
     {
-        $id = $this->alice->getId();
-        $alice = $this->em()->find(User::class, $id);
+        $uuid = $this->alice->getUuid()->toRfc4122();
+        $alice = $this->em()->find(User::class, $this->alice->getId());
         static::getContainer()->get(AccessRevoker::class)->revokeForUser($alice);
         $this->em()->remove($alice);
         $this->em()->flush();
@@ -89,7 +89,7 @@ class BackchannelLogoutTest extends FunctionalTestCase
         parse_str($this->requestTo(self::URI_APP1)['body'], $form);
         [, $claims] = $this->verify($form['logout_token']);
         self::assertSame('alice@example.com', $claims['sub']);
-        self::assertSame($id, $claims['uid']);
+        self::assertSame($uuid, $claims['uid']);
     }
 
     public function testFailingApplicationIsRetriedWithoutBlockingTheRevocation(): void
