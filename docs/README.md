@@ -13,6 +13,7 @@ authentification par e-mail, et un administrateur qui décide qui a accès à qu
 | **Protéger une application existante** (Nuxt SSR, Nuxt + Python, HTML/JS + Python, autre) | [Adapter une application](adapter-une-application.md) |
 | Référence du protocole : paramètres, requêtes, back-channel logout, erreurs | [Intégrer une application](integrer-une-application.md) |
 | Lancer les tests, tester le parcours complet | [Tests](tests.md) |
+| Protéger main, configurer Dependabot et CodeQL sur GitHub | [Sécurité GitHub](securite-github.md) |
 | Voir les évolutions prévues | [Feuille de route](../ROADMAP.md) |
 
 ## En 30 secondes

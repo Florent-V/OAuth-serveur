@@ -29,6 +29,7 @@ app2.mydomain.com
 | [**Adapter une application**](docs/adapter-une-application.md) | Protéger une application existante : Nuxt SSR, Nuxt + Python, HTML/JS + Python, cas général |
 | [Intégrer une application](docs/integrer-une-application.md) | Référence du protocole : paramètres, requêtes, back-channel logout, erreurs, exemples (PHP, Symfony, Node.js, Grafana…) |
 | [Tests](docs/tests.md) | Tests fonctionnels, intégration continue |
+| [Sécurité GitHub](docs/securite-github.md) | Protection de main, Dependabot, audit des dépendances et CodeQL (workflows Actions uniquement, pas PHP) |
 | [Feuille de route](ROADMAP.md) | Prochaines fonctionnalités |
 
 ## Démarrage rapide

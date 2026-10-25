@@ -60,6 +60,12 @@ dans Mailpit (<http://localhost:8025>).
 Dependabot (`.github/dependabot.yml`) propose chaque semaine les mises à jour de l'image de base, des dépendances
 PHP et des actions GitHub ; la CI les valide avant fusion.
 
+Les workflows `security.yml` et `dependency-review.yml` ajoutent respectivement un audit quotidien
+de `composer.lock` (également sur les PR et push principaux) et un blocage des nouvelles dépendances
+vulnérables dans les PR. `codeql.yml` analyse les workflows GitHub Actions ; **CodeQL ne prend pas
+en charge PHP**. Réglages GitHub et checks à rendre obligatoires :
+[Sécurité GitHub](securite-github.md).
+
 ## Écrire un test
 
 Les tests fonctionnels héritent de `tests/Functional/FunctionalTestCase.php`, qui fournit :
