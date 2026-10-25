@@ -10,7 +10,7 @@ Le serveur parle **OAuth 2.0** standard (flux *Authorization Code* avec PKCE, *R
 
 > Avant d'écrire du code : les règles à respecter sont dans
 > [Architecture d'une application cliente](architecture-application-cliente.md), et la mise en œuvre pas à pas
-> (Nuxt SSR, Nuxt + Python, HTML/JS + Python, cas général, migration depuis Casdoor) dans
+> (Nuxt SSR, Nuxt + Python, HTML/JS + Python, cas général) dans
 > [Adapter une application](adapter-une-application.md). Ce guide-ci est la référence du protocole.
 
 ## Sommaire
@@ -517,7 +517,7 @@ encore compatibles : voir la [feuille de route](../ROADMAP.md).
 
 Cas à vérifier : utilisateur sans accès, accès retiré pendant une session (session fermée immédiatement par
 back-channel, sinon au renouvellement), compte bloqué, déconnexion depuis votre application puis depuis une autre
-application. Liste complète : [Adapter une application, section 6](adapter-une-application.md#6-vérifier-lapplication-adaptée).
+application. Liste complète : [Adapter une application, section 5](adapter-une-application.md#5-vérifier-lapplication-adaptée).
 
 ## 10. Erreurs fréquentes
 

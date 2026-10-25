@@ -3,15 +3,14 @@
 ← [Documentation](README.md)
 
 Ce guide explique comment protéger une application existante (aujourd'hui sans authentification, ou branchée sur
-un autre fournisseur comme Casdoor) avec le serveur. Il applique les règles de
+un autre fournisseur) avec le serveur. Il applique les règles de
 [l'architecture d'une application cliente](architecture-application-cliente.md) à quatre cas :
 
 1. [Nuxt SSR](#1-nuxt-ssr)
 2. [Nuxt + backend Python](#2-nuxt--backend-python)
 3. [Front HTML/CSS/JS + backend Python](#3-front-htmlcssjs--backend-python)
 4. [Frontend + backend quelconques](#4-frontend--backend-quelconques)
-5. [Migrer depuis Casdoor](#5-migrer-depuis-casdoor)
-6. [Vérifier l'application adaptée](#6-vérifier-lapplication-adaptée)
+5. [Vérifier l'application adaptée](#5-vérifier-lapplication-adaptée)
 
 Le serveur parle des protocoles standard (OAuth 2.0, OpenID Connect Back-Channel Logout) : c'est la partie serveur de
 chaque application qui s'adapte, quel que soit son langage. Le principe est toujours le même :
@@ -620,33 +619,7 @@ Bibliothèques utiles :
 Les modules « OpenID Connect » des frameworks qui exigent une URL de découverte (`/.well-known/…`) ne fonctionnent pas
 encore avec ce serveur : utilisez leur mode OAuth2 avec les URL saisies à la main.
 
-## 5. Migrer depuis Casdoor
-
-Pour une application qui utilisait Casdoor (vérification d'un rôle au login, puis re-contrôle périodique via
-`GET /api/get-user` avec les identifiants du client) :
-
-| Avec Casdoor | Avec ce serveur |
-|---|---|
-| Rôle requis (ex. `casino-users`) dans le claim `roles` | **Accès à l'application** attribué par l'admin. Un utilisateur sans accès n'arrive jamais sur le callback : plus de vérification de rôle dans l'application |
-| `isForbidden` / `isDeleted` | Compte bloqué / supprimé : renouvellement refusé et logout token envoyé |
-| Re-contrôle toutes les N minutes via `/api/get-user` (API d'administration propriétaire) | **Couche 1** (renouvellement du jeton toutes les 15 min, standard) + **couche 3** (back-channel logout, quelques secondes, standard) |
-| `authCheckedAt` en session, cache mémoire par utilisateur | `logged_in_at` en session + registre des révocations |
-| Identifiant `org/username` | `id` / `uid` (UUID stable) |
-| Découverte OIDC, `id_token` | Non utilisés : URL saisies à la main, identité via `/api/userinfo` |
-
-Étapes :
-
-1. Déclarer l'application ([étape 0](#0-avant-de-commencer-tous-les-cas)) et **attribuer l'accès** aux utilisateurs
-   qui avaient le rôle.
-2. **Supprimer** : la vérification du rôle au login, `isUserAuthorized()` et l'appel à `/api/get-user`,
-   `authCheckedAt`, `NUXT_AUTH_RECHECK_MINUTES`, la configuration OIDC de Casdoor.
-3. **Ajouter** les éléments du [cas 1](#1-nuxt-ssr) (Nuxt SSR) : jetons en session (`secure`), middleware
-   `oauth-session.ts`, route de back-channel logout, `loggedInAt`.
-4. Garder la page `/unauthorized` si elle existe : un utilisateur sans accès voit déjà la page « Vous n'avez pas accès »
-   du serveur, mais l'application peut y renvoyer en cas de 401.
-5. Rattacher les comptes existants par e-mail puis `sso_id` ([étape 0](#0-avant-de-commencer-tous-les-cas), point 5).
-
-## 6. Vérifier l'application adaptée
+## 5. Vérifier l'application adaptée
 
 Sur le serveur de développement (`make start`) ou de production :
 

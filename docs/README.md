@@ -10,9 +10,10 @@ authentification par e-mail, et un administrateur qui décide qui a accès à qu
 | Mettre le serveur en production sur mon serveur | [Installation – production](installation-production.md) |
 | Ajouter des applications, gérer les utilisateurs, les accès, les comptes | [Administration](administration.md) |
 | **Les règles à respecter dans une application cliente** (BFF, jetons, révocation) | [Architecture d'une application cliente](architecture-application-cliente.md) |
-| **Protéger une application existante** (Nuxt SSR, Nuxt + Python, HTML/JS + Python, autre, depuis Casdoor) | [Adapter une application](adapter-une-application.md) |
+| **Protéger une application existante** (Nuxt SSR, Nuxt + Python, HTML/JS + Python, autre) | [Adapter une application](adapter-une-application.md) |
 | Référence du protocole : paramètres, requêtes, back-channel logout, erreurs | [Intégrer une application](integrer-une-application.md) |
 | Lancer les tests, tester le parcours complet | [Tests](tests.md) |
+| Protéger main, configurer Dependabot et CodeQL sur GitHub | [Sécurité GitHub](securite-github.md) |
 | Voir les évolutions prévues | [Feuille de route](../ROADMAP.md) |
 
 ## En 30 secondes

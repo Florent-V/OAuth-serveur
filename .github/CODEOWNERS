@@ -1,0 +1,10 @@
+# Une approbation obligatoire nécessite un autre mainteneur pour les PR de Florent-V.
+/.github/ @Florent-V
+/composer.json @Florent-V
+/composer.lock @Florent-V
+/symfony.lock @Florent-V
+/Dockerfile @Florent-V
+/compose*.yaml @Florent-V
+/frankenphp/ @Florent-V
+/config/ @Florent-V
+/src/ @Florent-V

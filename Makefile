@@ -92,6 +92,9 @@ revoke: ## Bloque un utilisateur, ex. make revoke email=...
 public-key: ## Affiche la clé publique de signature des JWT (pour les applications)
 	@$(DOCKER_COMP) exec -T php cat config/jwt/public.pem
 
+public-key-env: ## Clé publique sur une seule ligne (\n littéraux), pour une variable d'environnement
+	@$(DOCKER_COMP) exec -T php cat config/jwt/public.pem | awk 'NF {printf "%s\\n", $$0}'; echo
+
 db: ## Client psql sur la base de dev
 	@$(DOCKER_COMP) exec database sh -c 'psql -U "$$POSTGRES_USER" "$$POSTGRES_DB"'
 

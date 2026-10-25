@@ -158,7 +158,9 @@ class ApplicationCrudController extends AbstractCrudController
             ->setBackchannelLogoutUri($entityInstance->getBackchannelLogoutUri())
             ->setGrants(new Grant(OAuth2Grants::AUTHORIZATION_CODE), new Grant(OAuth2Grants::REFRESH_TOKEN))
             ->setActive($entityInstance->isActive());
-        foreach ($entityInstance->getUsers() as $user) {
+        // Le formulaire a lié l'instance d'origine (non persistée) aux utilisateurs : on la détache avant de lier la nouvelle.
+        foreach ($entityInstance->getUsers()->toArray() as $user) {
+            $user->removeApplication($entityInstance);
             $application->addUser($user);
         }
 
