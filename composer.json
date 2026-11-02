@@ -29,7 +29,7 @@
         "symfony/runtime": "7.4.*",
         "symfony/security-bundle": "7.4.*",
         "symfony/security-csrf": "7.4.*",
-        "symfony/translation": "7.4.*",
+        "symfony/translation": "8.1.*",
         "symfony/twig-bridge": "7.4.*",
         "symfony/twig-bundle": "7.4.*",
         "symfony/uid": "7.4.*",
