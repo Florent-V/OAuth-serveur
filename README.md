@@ -28,6 +28,7 @@ app2.mydomain.com
 | [Architecture d'une application cliente](docs/architecture-application-cliente.md) | Les règles à respecter dans toute application protégée (BFF, jetons, révocation) |
 | [**Adapter une application**](docs/adapter-une-application.md) | Protéger une application existante : Nuxt SSR, Nuxt + Python, HTML/JS + Python, cas général |
 | [Intégrer une application](docs/integrer-une-application.md) | Référence du protocole : paramètres, requêtes, back-channel logout, erreurs, exemples (PHP, Symfony, Node.js, Grafana…) |
+| [Découverte et JWKS](docs/decouverte-et-jwks.md) | Métadonnées `.well-known`, JWKS, configuration d'un client par l'`issuer`, rotation des clés, écarts OpenID Connect |
 | [Tests](docs/tests.md) | Tests fonctionnels, intégration continue |
 | [Sécurité GitHub](docs/securite-github.md) | Protection de main, Dependabot, audit des dépendances et CodeQL (workflows Actions uniquement, pas PHP) |
 | [Feuille de route](ROADMAP.md) | Prochaines fonctionnalités |
@@ -58,6 +59,7 @@ En production : [Installation – production](docs/installation-production.md).
 | `GET /authorize` | Point d'entrée OAuth2 (les applications y redirigent l'utilisateur) |
 | `POST /token` | Échange code → jetons, renouvellement (appelé par le backend de l'application) |
 | `GET /api/userinfo` | Informations sur l'utilisateur (`Authorization: Bearer <access_token>`) |
+| `GET /.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`, `/.well-known/jwks.json` | Métadonnées du serveur (RFC 8414) et clés publiques de signature |
 | `GET /logout?redirect_uri=…` | Déconnexion globale, puis retour vers l'application |
 | `GET /login`, `/register`, `/2fa`, `/reset-password` | Connexion, inscription, code MFA, mot de passe oublié |
 | `GET /` | Portail : applications de l'utilisateur |

@@ -2,6 +2,8 @@
 
 namespace App\Security\BackchannelLogout;
 
+use App\Security\Jwt\Issuer;
+use App\Security\Jwt\SigningKeys;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Signer\Key\InMemory;
@@ -26,8 +28,8 @@ final class LogoutTokenFactory
         private readonly string $privateKeyPath,
         #[Autowire('%env(OAUTH_PASSPHRASE)%')]
         private readonly string $passphrase,
-        #[Autowire('%env(DEFAULT_URI)%')]
-        private readonly string $issuer,
+        private readonly Issuer $issuer,
+        private readonly SigningKeys $keys,
     ) {
     }
 
@@ -43,6 +45,7 @@ final class LogoutTokenFactory
         // Dates en secondes entières (NumericDate), comprises par toutes les bibliothèques JWT
         return $configuration->builder(ChainedFormatter::withUnixTimestampDates())
             ->withHeader('typ', 'logout+jwt')
+            ->withHeader('kid', $this->keys->activeKid())
             ->issuedBy($this->issuer())
             ->permittedFor($clientId)
             ->relatedTo($subject)
@@ -61,7 +64,7 @@ final class LogoutTokenFactory
      */
     public function issuer(): string
     {
-        return rtrim($this->issuer, '/');
+        return $this->issuer->value();
     }
 
     private function configuration(): Configuration
