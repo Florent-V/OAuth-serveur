@@ -16,6 +16,10 @@ updates:
       time: "07:00"
       timezone: Europe/Paris
     open-pull-requests-limit: 5
+    ignore:
+      # Projet sensible : on reste sur Symfony 7.4 (LTS). Pas de passage à 8.x.
+      - dependency-name: "symfony/*"
+        versions: [">=8.0.0"]
     groups:
       symfony:
         applies-to: version-updates

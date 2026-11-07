@@ -65,12 +65,16 @@ même connecté, vous verrez « Vous n'avez pas accès à l'application ».
 | Authentification du client sur `/token` | `client_id` + `client_secret` dans le corps (`client_secret_post`) ou en HTTP Basic (`client_secret_basic`) |
 | Access token | JWT signé **RS256**, valable **15 minutes** |
 | Refresh token | valable **1 mois**, **à usage unique** (un nouveau est fourni à chaque renouvellement) |
-| Clé publique (vérification des JWT) | fournie par l'administrateur (`make prod-public-key`) |
+| Clé publique (vérification des JWT) | le JWKS `https://oauth.mydomain.com/.well-known/jwks.json` (clé choisie par le `kid` du jeton), ou le PEM fourni par l'administrateur (`make prod-public-key`) |
 | Back-channel logout | `POST` d'un *logout token* (JWT RS256) vers l'URL déclarée pour l'application ([section 7](#7-back-channel-logout--déconnexion-immédiate)) |
 | Émetteur (`iss` des logout tokens) | l'URL publique du serveur, ex. `https://oauth.mydomain.com` |
 
-Il n'y a pas (encore) de découverte OpenID Connect (`/.well-known/openid-configuration`) ni d'`id_token` : configurez
-les URL ci-dessus à la main. Voir la [feuille de route](../ROADMAP.md).
+**Découverte automatique.** Toutes ces valeurs sont publiées dans `https://oauth.mydomain.com/.well-known/oauth-authorization-server`
+(RFC 8414, même contenu sur `/.well-known/openid-configuration`), et les clés de vérification des JWT dans le JWKS
+`https://oauth.mydomain.com/.well-known/jwks.json` (le `kid` du jeton désigne la clé). Une bibliothèque qui sait lire
+ce document n'a besoin que de l'`issuer`, du `client_id` et du `client_secret` : voir
+[Découverte et JWKS](decouverte-et-jwks.md). Configurer les URL à la main reste possible et inchangé. Il n'y a
+toujours pas d'`id_token` : un module « OpenID Connect » strict qui l'exige reste incompatible.
 
 ## 3. Le flux de connexion, pas à pas
 
@@ -203,7 +207,8 @@ Avantage : chaque appel vérifie l'état **actuel** (accès retiré, compte bloq
 ### B. Vérifier le JWT localement (sans appel réseau)
 
 L'access token est un JWT signé avec la clé privée du serveur. Avec la **clé publique** (fichier PEM transmis par
-l'administrateur), votre application peut le vérifier elle-même. Contenu (*claims*) :
+l'administrateur, ou clé du [JWKS](decouverte-et-jwks.md) retrouvée grâce à l'en-tête `kid` du jeton), votre application
+peut le vérifier elle-même. Contenu (*claims*) :
 
 ```json
 {
@@ -501,8 +506,10 @@ use_pkce = true
 ```
 
 Redirect URI à déclarer : `https://grafana.mydomain.com/login/generic_oauth`. Les applications qui exigent
-**OpenID Connect** avec découverte automatique (certaines versions de Nextcloud, Gitea, Proxmox…) ne sont pas
-encore compatibles : voir la [feuille de route](../ROADMAP.md).
+un vrai **OpenID Connect** (`id_token`, scope `openid` : certaines versions de Nextcloud, Gitea, Proxmox…) ne sont pas
+encore compatibles, même si le serveur publie un document de découverte : voir
+[les écarts OpenID Connect](decouverte-et-jwks.md#écarts-restants-vers-une-conformité-openid-connect) et la
+[feuille de route](../ROADMAP.md).
 
 ## 9. Tester son intégration
 

@@ -35,7 +35,9 @@ chaque application qui s'adapte, quel que soit son langage. Le principe est touj
    Notez le **client secret** (affiché une seule fois). Pour le développement, déclarez une seconde application
    (`app1-dev`) avec des URL en `http://localhost:…`.
 2. **Récupérer la clé publique** du serveur (vérification des logout tokens et des JWT) :
-   `make prod-public-key > oauth-public.pem`.
+   `make prod-public-key > oauth-public.pem`. Variante sans fichier : lire le JWKS
+   `https://oauth.mydomain.com/.well-known/jwks.json` et choisir la clé d'après le `kid` du jeton (ex. `jwt.PyJWKClient`
+   en Python) ; une rotation des clés ne demande alors aucune reconfiguration (voir [Découverte et JWKS](decouverte-et-jwks.md)).
 3. **Donner l'accès** aux utilisateurs concernés (`make prod-grant email=… app=app1`, ou depuis l'admin).
 4. **Variables d'environnement** de la partie serveur de l'application :
 
@@ -44,7 +46,7 @@ chaque application qui s'adapte, quel que soit son langage. Le principe est touj
    | URL du serveur | `https://oauth.mydomain.com` (c'est aussi l'émetteur `iss` des logout tokens) |
    | Client ID / secret | `app1` / `…` |
    | Redirect URI | `https://app1.mydomain.com/auth/callback` |
-   | Clé publique | contenu ou chemin de `oauth-public.pem` |
+   | Clé publique | contenu ou chemin de `oauth-public.pem` (ou `jwks_uri` : `<URL du serveur>/.well-known/jwks.json`) |
    | Secret de session de l'application | `openssl rand -hex 32` |
 
 5. **Rattacher vos comptes existants** : si l'application a déjà une table d'utilisateurs, ajoutez-y une colonne
@@ -616,8 +618,10 @@ Bibliothèques utiles :
 | Java | Spring Security OAuth2 Client (configuration manuelle des URL, pas de découverte) | `nimbus-jose-jwt` | Spring Session |
 | Go | `golang.org/x/oauth2` | `github.com/golang-jwt/jwt/v5` | `gorilla/sessions` + Redis |
 
-Les modules « OpenID Connect » des frameworks qui exigent une URL de découverte (`/.well-known/…`) ne fonctionnent pas
-encore avec ce serveur : utilisez leur mode OAuth2 avec les URL saisies à la main.
+Le serveur publie un document de découverte (`/.well-known/oauth-authorization-server`) et un JWKS : les
+bibliothèques OAuth2 qui le lisent se configurent avec le seul `issuer` (voir [Découverte et JWKS](decouverte-et-jwks.md)).
+Les modules « OpenID Connect » stricts, qui exigent un `id_token`, ne fonctionnent pas encore : utilisez leur mode
+OAuth2.
 
 ## 5. Vérifier l'application adaptée
 

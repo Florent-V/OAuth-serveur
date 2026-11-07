@@ -13,6 +13,11 @@ security:
             pattern: ^/(_profiler|_wdt|assets|build|bundles)/
             security: false
 
+        # Documents publics de découverte (métadonnées, JWKS), y compris avec un chemin d'issuer : ni session, ni authentification
+        well_known:
+            pattern: /\.well-known/(oauth-authorization-server|openid-configuration|jwks\.json)(/|$)
+            security: false
+
         # Échange code -> jeton : authentification du client par client_id/client_secret, pas de session
         oauth_token:
             pattern: ^/token$

@@ -180,7 +180,7 @@ Vérifications **obligatoires** avant d'agir (spécification, section 2.6) :
 
 | Vérification | Attendu |
 |---|---|
-| Signature | RS256 uniquement, avec la clé publique du serveur (`make prod-public-key`) |
+| Signature | RS256 uniquement, avec la clé publique du serveur (`make prod-public-key`, ou le JWKS `/.well-known/jwks.json` d'après le `kid`) |
 | `iss` | L'URL publique du serveur (`DEFAULT_URI` du serveur, sans `/` final) |
 | `aud` | Contient le client ID de l'application |
 | `iat` / `exp` | Émis il y a moins de quelques minutes, non expiré (le jeton vit 2 minutes) |
