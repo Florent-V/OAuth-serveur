@@ -22,7 +22,6 @@ league_oauth2_server:
     client:
         # Entité App\Entity\Application = client OAuth2 + infos de l'application + utilisateurs autorisés
         classname: App\Entity\Application
-        allow_plaintext_secrets: false
 
 when@test:
     services:
