@@ -3,41 +3,71 @@ updates:
   - package-ecosystem: docker
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-      time: "07:00"
+      interval: monthly
       timezone: Europe/Paris
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+      major:
+        update-types: ["major"]
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: monthly
+      timezone: Europe/Paris
+    open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+      major:
+        update-types: ["major"]
   - package-ecosystem: composer
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-      time: "07:00"
+      interval: monthly
       timezone: Europe/Paris
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    commit-message:
+      prefix: "chore(deps)"
     ignore:
       # Projet sensible : on reste sur Symfony 7.4 (LTS). Pas de passage à 8.x.
       - dependency-name: "symfony/*"
         versions: [">=8.0.0"]
     groups:
-      symfony:
-        applies-to: version-updates
-        patterns: ["symfony/*"]
+      minor-and-patch:
         update-types: ["minor", "patch"]
+      major:
+        update-types: ["major"]
       security:
         applies-to: security-updates
         patterns: ["*"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-      time: "07:00"
+      interval: monthly
       timezone: Europe/Paris
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    commit-message:
+      prefix: "chore(deps)"
     groups:
-      actions:
-        applies-to: version-updates
-        patterns: ["*"]
+      minor-and-patch:
         update-types: ["minor", "patch"]
+      major:
+        update-types: ["major"]
