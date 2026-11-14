@@ -49,6 +49,16 @@ Connectez une application à <http://localhost:8080> (voir
 [Installation – développement](installation-developpement.md#4-connecter-une-application)). Les e-mails arrivent
 dans Mailpit (<http://localhost:8025>).
 
+Vérification rapide de la découverte (le `Host` ne doit pas influencer le document, la commande affiche `0`) :
+
+```bash
+curl -si http://localhost:8080/.well-known/oauth-authorization-server
+curl -s -H 'Host: evil.test' http://localhost:8080/.well-known/oauth-authorization-server | grep -c evil
+```
+
+Le test d'interopérabilité avec Authlib et PyJWT (flux complet : découverte, PKCE, JWKS, back-channel logout) est
+décrit dans [Découverte et JWKS](decouverte-et-jwks.md#authlib-python).
+
 ## Intégration continue
 
 `.github/workflows/ci.yml`, à chaque push et pull request :
