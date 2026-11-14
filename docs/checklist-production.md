@@ -101,6 +101,9 @@ FrankenPHP + PostgreSQL (docker compose). Remplacez `oauth.mydomain.com` par vot
 
 ## 8. Applications clientes
 
+- [ ] Découverte publiée : `curl -si https://oauth.mydomain.com/.well-known/oauth-authorization-server` répond `200`
+  avec le bon `issuer`, `/.well-known/jwks.json` contient une clé avec `kid` (le reverse proxy laisse passer
+  `/.well-known/*`).
 - [ ] Chaque application déclarée (`make prod-app name="App 1" id=app1 url=https://app1.mydomain.com` ou `/admin`).
 - [ ] Accès attribués (`make prod-grant email=... app=app1`).
 - [ ] Connexion complète testée depuis chaque application.
