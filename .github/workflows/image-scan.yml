@@ -1,0 +1,49 @@
+name: Image scan
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - compose*.yaml
+      - composer.lock
+      - frankenphp/**
+      - .trivyignore
+      - .github/workflows/image-scan.yml
+  schedule:
+    - cron: "41 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: image-scan-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  trivy:
+    name: Trivy (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [frankenphp_prod, frankenphp_dev]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build
+        run: docker build --pull --target "${{ matrix.target }}" --tag "oauth-server:scan-${{ matrix.target }}" .
+      - name: Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: oauth-server:scan-${{ matrix.target }}
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          trivyignores: .trivyignore

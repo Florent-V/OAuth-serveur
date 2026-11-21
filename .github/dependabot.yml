@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: docker
     directory: /
     schedule:
-      interval: monthly
+      interval: weekly
       timezone: Europe/Paris
     open-pull-requests-limit: 3
     cooldown:
@@ -11,6 +11,10 @@ updates:
       semver-major-days: 30
     commit-message:
       prefix: "chore(deps)"
+    ignore:
+      # FrankenPHP : pas de saut de majeure automatique
+      - dependency-name: "dunglas/frankenphp"
+        update-types: ["version-update:semver-major"]
     groups:
       minor-and-patch:
         update-types: ["minor", "patch"]
@@ -19,7 +23,7 @@ updates:
   - package-ecosystem: docker-compose
     directory: /
     schedule:
-      interval: monthly
+      interval: weekly
       timezone: Europe/Paris
     open-pull-requests-limit: 3
     cooldown:
@@ -27,6 +31,10 @@ updates:
       semver-major-days: 30
     commit-message:
       prefix: "chore(deps)"
+    ignore:
+      # PostgreSQL reste sur la 16 (migration de majeure manuelle : dump/restore des données)
+      - dependency-name: "postgres"
+        update-types: ["version-update:semver-major"]
     groups:
       minor-and-patch:
         update-types: ["minor", "patch"]

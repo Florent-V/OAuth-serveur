@@ -20,7 +20,8 @@ services:
       - oauth_uploads:/app/public/uploads
 
   database:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    # Tag exact + digest (mises à jour via Dependabot) ; POSTGRES_VERSION ne sert plus qu'au serverVersion de Doctrine
+    image: postgres:16.16-alpine3.24@sha256:1d5b02d3a9941fbd52437db4107f8c52d6297dac553ca1e5c299ebb3756b4857
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-app}
