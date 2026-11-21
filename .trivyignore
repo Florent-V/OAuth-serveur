@@ -1,0 +1,2 @@
+# CVE acceptés temporairement (HIGH/CRITICAL sans correctif amont).
+# Format : un identifiant par ligne, précédé d'un commentaire (raison, version corrigée attendue, à retirer quand corrigé).

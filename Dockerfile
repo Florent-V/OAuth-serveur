@@ -11,12 +11,9 @@
 #
 # Construction : make build (dev) / make prod-build (prod)
 
-ARG FRANKENPHP_VERSION=1
-ARG PHP_VERSION=8.4
-# Version de Debian figée : une nouvelle version majeure ne doit pas arriver par surprise lors d'un build
-ARG DEBIAN_VERSION=trixie
-
-FROM dunglas/frankenphp:${FRANKENPHP_VERSION}-php${PHP_VERSION}-${DEBIAN_VERSION} AS frankenphp_upstream
+# Version épinglée (FrankenPHP 1.14.0, PHP 8.4.28, Debian trixie) : les mises à jour, notamment de
+# sécurité, arrivent via les PR Dependabot (tag littéral + digest, sinon Dependabot ne le détecte pas).
+FROM dunglas/frankenphp:1.14.0-php8.4.28-trixie@sha256:f6a1b0a07da85a4b0b87fad10ee2563fd804d85a5a66c0f7e4bc6f4cf9f61469 AS frankenphp_upstream
 
 # ---------------------------------------------------------------------------
 # Base commune : extensions, utilisateur, configuration
